@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Nuitka / PyInstaller
+*.build/
+*.dist/
+*.onefile-build/
+manga_translator.build/
+manga_translator.dist/
+manga_translator.onefile-build/
+
+# Test artifacts
+test_page*.png
+page_*.png
+batch_out/
+*_translated.png
+*_translated.jpg
+*.log
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+*.pyc
+
+# Model / data caches
+models/
+*.traineddata

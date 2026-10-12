@@ -1,0 +1,21 @@
+# Core GUI framework
+PyQt6>=6.5.0
+
+# Image processing
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# OCR engines (at least one recommended)
+pytesseract>=0.3.10          # Tesseract wrapper (requires Tesseract binary)
+# paddleocr>=2.7.0           # PaddleOCR (optional, high accuracy on CJK)
+# paddlepaddle>=2.5.0        # PaddleOCR backend (optional)
+# easyocr>=1.7.0             # EasyOCR (optional)
+
+# Translation engines (at least one recommended)
+# googletrans>=4.0.0         # Google Translate (unofficial, free)
+# deepl>=1.15.0              # DeepL API
+requests>=2.31.0             # For LibreTranslate / HTTP engines
+
+# Packaging (optional)
+# nuitka>=1.8.0
+# pyinstaller>=6.0.0
