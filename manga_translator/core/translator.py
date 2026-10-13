@@ -404,12 +404,31 @@ class TranslatorManager(QObject):
         # LibreTranslate
         self.engines["libretranslate"] = LibreTranslateEngine()
 
+        # LLM translation (reuses BookerGptTool prompts; config from env vars)
+        try:
+            from manga_translator.core.llm_translator import LLMTranslator
+            self.engines["llm"] = LLMTranslator(
+                self.config.get("translation.source_language", "auto"),
+                self.config.get("translation.target_language", "en"),
+                rounds=int(self.config.get("translation.llm_rounds", 1)),
+            )
+        except Exception as ex:
+            self.logger.debug(f"LLM translator unavailable: {ex}")
+
         # Set current engine
         engine_name = self.config.get("translation.engine", "google")
         self.set_engine(engine_name)
 
     def set_engine(self, engine_name: str) -> bool:
         """Set the active translation engine."""
+        if engine_name == "llm":
+            # Rebuild so source/target languages and rounds stay current.
+            from manga_translator.core.llm_translator import LLMTranslator
+            self.engines["llm"] = LLMTranslator(
+                self.config.get("translation.source_language", "auto"),
+                self.config.get("translation.target_language", "en"),
+                rounds=int(self.config.get("translation.llm_rounds", 1)),
+            )
         if engine_name in self.engines:
             self.current_engine = self.engines[engine_name]
             self.config.set("translation.engine", engine_name)

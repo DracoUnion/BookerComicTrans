@@ -605,27 +605,40 @@ class MainWindow(QMainWindow):
         self._update_actions()
 
     def _on_retranslate_one(self, index: int):
-        """Retranslate a single region."""
+        """Retranslate a single region (on a background thread)."""
         if index < 0 or index >= len(self._current_regions):
             return
         region = self._current_regions[index]
-        result = self.translator_manager.translate(
-            region.text,
-            self.source_lang_combo.currentText(),
-            self.target_lang_combo.currentText(),
-        )
+        src = self.source_lang_combo.currentText()
+        tgt = self.target_lang_combo.currentText()
 
+        self.status_indicator.set_status("busy", f"Retranslating region {index + 1}...")
+        worker = TranslationWorker(
+            self.translator_manager, [region.text],
+            source_lang=src, target_lang=tgt)
+        worker.finished.connect(
+            lambda results: self._on_retranslate_done(index, results))
+        worker.error.connect(lambda e: self._on_retranslate_error(index, e))
+        self._start_worker(worker)
+
+    def _on_retranslate_done(self, index: int, results: List):
+        """Handle a finished retranslation."""
+        if not results:
+            return
+        result = results[0]
         if index < len(self._current_translations):
             self._current_translations[index] = result
-
-        # Update the panel table cell
         cell = self.translation_panel.table.item(index, 1)
         if cell is not None:
             cell.setText(result.translated_text)
-
         handle = self.viewer._overlay_items[index] if index < len(self.viewer._overlay_items) else None
         if handle is not None:
             handle.set_translation(result.translated_text)
+        self.status_indicator.set_status("success", "Retranslation done")
+
+    def _on_retranslate_error(self, index: int, msg: str):
+        self.logger.error(f"Retranslate error: {msg}")
+        self.status_indicator.set_status("error", f"Retranslate failed: {msg}")
 
     def _batch_translate(self, pages: List[Path]):
         """Translate all pages and export them."""

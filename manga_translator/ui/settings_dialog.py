@@ -159,7 +159,33 @@ class SettingsDialog(QDialog):
         self.cache_cb = QCheckBox("Cache translations")
         layout.addRow("", self.cache_cb)
 
+        # LLM refinement rounds
+        self.llm_rounds_spin = QSpinBox()
+        self.llm_rounds_spin.setRange(0, 5)
+        self.llm_rounds_spin.setToolTip(
+            "大模型翻译的「翻译→审核→修正」迭代轮数（0 表示只翻译一次）"
+        )
+        layout.addRow("LLM Review Rounds:", self.llm_rounds_spin)
+
+        # LLM connection info (read-only, from environment)
+        from manga_translator.core import llm_client
+        llm_info = QLabel(self._llm_status_text(llm_client))
+        llm_info.setWordWrap(True)
+        llm_info.setStyleSheet("color: #666; font-size: 11px;")
+        layout.addRow("LLM (env):", llm_info)
+
         return widget
+
+    @staticmethod
+    def _llm_status_text(llm_client) -> str:
+        """Describe the LLM configuration sourced from environment variables."""
+        if not llm_client.is_configured():
+            return ("未配置：请设置环境变量 OPENAI_API_KEY / "
+                    "OPENAI_BASE_URL / OPENAI_VIS_MODEL。")
+        vis = llm_client.get_vision_model() or "(未设置，回退到文本模型)"
+        chat = llm_client.get_chat_model()
+        return (f"已配置。视觉模型：{vis}；文本模型：{chat}。"
+                f"（连接信息来自环境变量）")
 
     def _create_image_tab(self) -> QWidget:
         """Create the Image tab."""
@@ -275,6 +301,8 @@ class SettingsDialog(QDialog):
 
         self.api_key_edit.setText(self.config.get("translation.api_key", ""))
         self.cache_cb.setChecked(self.config.get("translation.use_cache", True))
+        self.llm_rounds_spin.setValue(
+            int(self.config.get("translation.llm_rounds", 1)))
 
         # Image
         self.max_size_spin.setValue(self.config.get("image.max_image_size", 4096))
@@ -311,6 +339,7 @@ class SettingsDialog(QDialog):
         self.config.set("translation.target_language", self.target_lang_combo.currentText())
         self.config.set("translation.api_key", self.api_key_edit.text())
         self.config.set("translation.use_cache", self.cache_cb.isChecked())
+        self.config.set("translation.llm_rounds", self.llm_rounds_spin.value())
 
         # Image
         self.config.set("image.max_image_size", self.max_size_spin.value())

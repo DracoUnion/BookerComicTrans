@@ -30,12 +30,13 @@ class ConfigManager:
             "preprocess": True,
         },
         "translation": {
-            "engine": "google",  # google, deepl, bing, libretranslate
+            "engine": "google",  # google, deepl, bing, libretranslate, llm
             "source_language": "ja",  # ja, zh, ko, auto
             "target_language": "en",
             "api_key": "",
             "api_secret": "",
             "use_cache": True,
+            "llm_rounds": 1,  # translate->review->fix iterations (LLM engine)
         },
         "image": {
             "supported_formats": [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"],

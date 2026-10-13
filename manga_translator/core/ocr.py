@@ -342,6 +342,13 @@ class OCRManager:
         except Exception:
             pass
 
+        # LLM / VLM OCR (reuses BookerGptTool OCR_PMT; config from env vars)
+        try:
+            from manga_translator.core.llm_ocr import LLMOCREngine
+            self.engines["llm"] = LLMOCREngine(language)
+        except Exception as ex:
+            self.logger.debug(f"LLM OCR engine unavailable: {ex}")
+
         # Set current engine
         engine_name = self.config.get("ocr.engine", "tesseract")
         self.set_engine(engine_name)
@@ -410,6 +417,9 @@ class OCRManager:
             self.engines["paddleocr"] = PaddleOCREngine(language)
         elif engine_name == "easyocr":
             self.engines["easyocr"] = EasyOCREngine([language, "en"])
+        elif engine_name == "llm":
+            from manga_translator.core.llm_ocr import LLMOCREngine
+            self.engines["llm"] = LLMOCREngine(language)
         self.set_engine(engine_name)
 
     def preprocess_image(self, image: Image.Image) -> Image.Image:

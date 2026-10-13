@@ -22,6 +22,13 @@ from manga_translator.core.ocr import (
     EasyOCREngine,
     MockOCREngine,
 )
+from manga_translator.core.llm_client import (
+    LLMClient,
+    LLMConfigError,
+    is_configured as llm_is_configured,
+)
+from manga_translator.core.llm_ocr import LLMOCREngine
+from manga_translator.core.llm_translator import LLMTranslator
 
 __all__ = [
     "ConfigManager",
@@ -41,4 +48,9 @@ __all__ = [
     "PaddleOCREngine",
     "EasyOCREngine",
     "MockOCREngine",
+    "LLMClient",
+    "LLMConfigError",
+    "llm_is_configured",
+    "LLMOCREngine",
+    "LLMTranslator",
 ]
