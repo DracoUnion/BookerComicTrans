@@ -152,9 +152,15 @@ def _make_client():
             base_url=_CONFIG["base_url"] or None,
             api_key=_CONFIG["api_key"],
             default_headers={"User-Agent": _CONFIG["user_agent"]},
+            # openai.Timeout (httpx2-backed) requires all four of connect /
+            # read / write / pool to be set explicitly, otherwise it raises
+            # "Timeout must either include a default, or set all four
+            # parameters explicitly".
             timeout=openai.Timeout(
-                read=_CONFIG["read_timeout"],
                 connect=_CONFIG["conn_timeout"],
+                read=_CONFIG["read_timeout"],
+                write=_CONFIG["read_timeout"],
+                pool=_CONFIG["read_timeout"],
             ),
         )
     except Exception as ex:
