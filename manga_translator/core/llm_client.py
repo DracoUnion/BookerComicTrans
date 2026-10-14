@@ -53,7 +53,10 @@ def _import_booker():
             call_vlm_retry,
             ask_chatgpt_retry,
             set_openai_props,
+            logger as oai_logger,
         )
+        import logging
+        oai_logger.setLevel(logging.DEBUG)
         return call_vlm_retry, ask_chatgpt_retry, set_openai_props
     except Exception as ex:  # pragma: no cover - environment dependent
         logger.debug(f"BookerGptTool not available: {ex}")
@@ -116,7 +119,7 @@ def build_args(
         vmodel=model,
         user_agent=_env("OPENAI_USER_AGENT",
                         "claude-cli/2.1.41 (external, cli)"),
-        stream=False,
+        stream=True,
         read_timeout=_read_timeout(),
         conn_timeout=_conn_timeout(),
         repetition_regex="",
