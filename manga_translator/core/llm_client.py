@@ -38,6 +38,7 @@ import traceback
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # --------------------------------------------------------------------------
 # Instruction-token escaping
