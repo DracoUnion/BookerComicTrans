@@ -18,6 +18,7 @@ Environment variable    Meaning                          Default
 ``OPENAI_USER_AGENT``   HTTP User-Agent header           ``MangaTranslator/1.0``
 ``OPENAI_TIMEOUT``      Read timeout in seconds          ``120``
 ``OPENAI_CONN_TIMEOUT`` Connect timeout in seconds       ``10``
+``OPENAI_STREAM``       Stream responses (true/false)    ``true``
 ======================  ===============================  ============
 
 The module degrades gracefully: if the SDK is missing or no API key is set,
@@ -134,6 +135,7 @@ _CONFIG = {
     "read_timeout": _read_timeout(),
     "conn_timeout": _conn_timeout(),
     "repetition_regex": _env("OPENAI_REPETITION_REGEX", ""),
+    "stream": _env("OPENAI_STREAM", "true").lower() in ("1", "true", "yes", "on"),
 }
 
 
@@ -166,6 +168,21 @@ def check_model_repetition(text: str):
         raise ValueError("检测到模型复读")
 
 
+def collect_stream_content(resp) -> str:
+    """Concatenate the text deltas of a streamed chat completion."""
+    content = []
+    for chunk in resp:
+        if not chunk.choices:
+            continue
+        delta = chunk.choices[0].delta
+        delta_content = getattr(delta, "content", None)
+        if not delta_content:
+            continue
+        content.append(delta_content)
+        check_model_repetition("".join(content))
+    return "".join(content)
+
+
 # --------------------------------------------------------------------------
 # Low-level calls
 # --------------------------------------------------------------------------
@@ -188,7 +205,8 @@ def call_llm(
     logger.debug(f"ques: %s", json_dump_model(get_msgs_text(msgs))[:400])
 
     client = _make_client()
-    res = client.chat.completions.create(
+    use_stream = _CONFIG["stream"]
+    kw = dict(
         messages=msgs,
         model=model_name,
         temperature=temp,
@@ -198,8 +216,23 @@ def call_llm(
         max_tokens=max_tokens,
         extra_body=extra_body or None,
     )
-    ans = (res.choices[0].message.content or "").strip()
-    check_model_repetition(ans)
+    try:
+        res = client.chat.completions.create(stream=use_stream, **kw)
+        if use_stream:
+            ans = collect_stream_content(res).strip()
+        else:
+            ans = (res.choices[0].message.content or "").strip()
+            check_model_repetition(ans)
+    except Exception:
+        # Some providers do not support streaming; retry once without it so a
+        # generic error does not abort the whole retry chain.
+        if use_stream:
+            use_stream = False
+            res = client.chat.completions.create(stream=False, **kw)
+            ans = (res.choices[0].message.content or "").strip()
+            check_model_repetition(ans)
+        else:
+            raise
     if not ans:
         raise ValueError(f"回复为空：{res}")
 
