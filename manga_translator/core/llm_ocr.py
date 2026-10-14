@@ -8,21 +8,20 @@ via the image size so they line up with the rest of the UI.
 
 Reuses:
 - ``OCR_PMT`` from :mod:`manga_translator.core.llm_prompts`
-- :class:`~manga_translator.core.llm_client.LLMClient` for the transport
+- :class:`~manga_translator.core.llm_client.LLMClient` for the transport and
+  ``parse_json`` for the (backtick-wrapped) JSON output.
 """
 
 from __future__ import annotations
 
 import io
-import json
-import re
 from typing import List, Optional
 
 from PIL import Image
 
 from manga_translator.core.ocr import OCREngine, TextRegion
 from manga_translator.core.llm_client import (
-    LLMClient, LLMConfigError, get_vision_model, get_chat_model,
+    LLMClient, LLMConfigError, get_vision_model, get_chat_model, parse_json,
 )
 from manga_translator.core.llm_prompts import OCR_PMT
 from manga_translator.core.logger import get_logger
@@ -37,29 +36,6 @@ def _img_to_png(image: Image.Image) -> bytes:
     buf = io.BytesIO()
     image.save(buf, format="PNG")
     return buf.getvalue()
-
-
-def _extract_code_block(text: str) -> str:
-    """Pull the contents of the first fenced code block, else the raw text."""
-    m = re.search(r"```\w*([\s\S]+?)```", text)
-    if m:
-        return m.group(1).strip()
-    # Fall back to the first {...} span
-    m = re.search(r"(\{[\s\S]*\})", text)
-    return m.group(1).strip() if m else text.strip()
-
-
-def _loads_loose(text: str) -> dict:
-    """Parse JSON, falling back to json_repair for slightly malformed output."""
-    text = _extract_code_block(text)
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        try:
-            import json_repair
-            return json_repair.loads(text)
-        except Exception as ex:
-            raise ValueError(f"无法解析模型返回的 JSON：{ex}\n{text[:400]}")
 
 
 class LLMOCREngine(OCREngine):
@@ -111,7 +87,9 @@ class LLMOCREngine(OCREngine):
 
         try:
             raw = client.ask_vlm(_img_to_png(image), OCR_PMT)
-            data = _loads_loose(raw)
+            data = parse_json(raw)
+            if not isinstance(data, dict):
+                raise ValueError("模型未返回 JSON 对象")
         except Exception as ex:
             logger.error(f"LLM OCR failed: {ex}")
             return []

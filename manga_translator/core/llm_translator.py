@@ -26,6 +26,7 @@ from manga_translator.core.translator import (
 )
 from manga_translator.core.llm_client import (
     LLMClient, LLMConfigError, get_chat_model, parse_json_array,
+    strip_code_fence, strip_content_block,
 )
 from manga_translator.core.llm_prompts import (
     TRANS_PMT, TRANS_CHK_PMT, TRANS_FIX_PMT,
@@ -46,9 +47,15 @@ def render_prompt(prompt: str, **kw) -> str:
 
 
 def ext_cont_block(s: str) -> str:
-    """Extract the ``[content]...[/content]`` block, else return the input."""
-    m = re.search(r"\[content\]([\s\S]+?)\[/content\]", s)
-    return m.group(1) if m else s
+    """Extract non-JSON output from its ``[content]...[/content]`` wrapper.
+
+    Non-JSON outputs are expected to be wrapped in ``[content]...[/content]``
+    (JSON outputs are wrapped in triple backticks instead, see ``parse_json``).
+    As a defensive fallback a stray code fence is also stripped.
+    """
+    s = strip_content_block(s)
+    s = strip_code_fence(s)
+    return s
 
 
 # --------------------------------------------------------------------------

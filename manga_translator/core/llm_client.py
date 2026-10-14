@@ -321,15 +321,36 @@ def call_vlm_retry(
 # JSON parsing helpers (tolerate code fences / slightly malformed output)
 # --------------------------------------------------------------------------
 
+CODE_FENCE_RE = re.compile(r"```(?:\w+)?\s*[\r\n]*([\s\S]*?)[\r\n]*```")
+CONT_BLOCK_RE = re.compile(r"\[content\]([\s\S]*?)\[/content\]")
+
+
 def strip_code_fence(text: str) -> str:
     """Strip a surrounding ```(lang)\\n...\\n``` block if present."""
-    m = re.search(r"```(?:\w+)?\s*[\r\n]*([\s\S]*?)[\r\n]*```", text)
+    m = CODE_FENCE_RE.search(text)
     return m.group(1).strip() if m else text.strip()
 
 
+def strip_content_block(text: str) -> str:
+    """Strip a surrounding ``[content]...[/content]`` block if present."""
+    t = text.lstrip()
+    if t.startswith("[content]"):
+        m = CONT_BLOCK_RE.search(text)
+        if m:
+            return m.group(1).strip()
+    return text.strip()
+
+
 def parse_json(text: str) -> Any:
-    """Parse JSON, tolerating code fences and minor syntax errors."""
+    """Parse JSON, tolerating code fences, [content] markers and syntax errors.
+
+    Outputs that are *not* JSON are expected to be wrapped in
+    ``[content]...[/content]`` (see ``ext_cont_block``); JSON outputs are
+    expected to be wrapped in triple backticks. Both wrappers are stripped here
+    defensively before parsing.
+    """
     text = strip_code_fence(text)
+    text = strip_content_block(text)
     try:
         return json.loads(text)
     except json.JSONDecodeError:
