@@ -669,8 +669,8 @@ class MainWindow(QMainWindow):
                 regions = self.ocr_manager.recognize(img)
 
                 texts = [r.text for r in regions]
-                results = [self.translator_manager.translate(t, source_lang, target_lang)
-                           for t in texts]
+                results = self.translator_manager.translate_many(
+                    texts, source_lang, target_lang)
 
                 rendered = self.image_processor.render_translations(
                     image, regions, results,

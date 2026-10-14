@@ -1,14 +1,13 @@
 """
 LLM-based OCR engine for Manga Translator.
 
-Sends the page image to a vision model with the shared ``OCR_PMT`` prompt and
-parses the structured JSON reply into :class:`~manga_translator.core.ocr.TextRegion`
+Sends the page image to a vision model with the ``OCR_PMT`` prompt and parses
+the structured JSON reply into :class:`~manga_translator.core.ocr.TextRegion`
 objects. The model returns *relative* bboxes (0-1); these are scaled to pixels
 via the image size so they line up with the rest of the UI.
 
 Reuses:
 - ``OCR_PMT`` from :mod:`manga_translator.core.llm_prompts`
-  (which itself re-exports ``BookerGptTool.pdf_ocr_pmt.OCR_PMT``)
 - :class:`~manga_translator.core.llm_client.LLMClient` for the transport
 """
 
@@ -64,7 +63,7 @@ def _loads_loose(text: str) -> dict:
 
 
 class LLMOCREngine(OCREngine):
-    """OCR powered by a vision LLM (prompt reused from BookerGptTool)."""
+    """OCR powered by a vision LLM."""
 
     def __init__(self, language: str = "jpn", model: Optional[str] = None):
         self.language = language

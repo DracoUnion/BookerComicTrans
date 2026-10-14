@@ -16,6 +16,10 @@ pytesseract>=0.3.10          # Tesseract wrapper (requires Tesseract binary)
 # deepl>=1.15.0              # DeepL API
 requests>=2.31.0             # For LibreTranslate / HTTP engines
 
+# LLM engines (self-contained; no BookerGptTool dependency)
+openai>=1.30.0               # OpenAI-compatible SDK (LLM OCR / translation)
+json_repair>=0.25.0          # Tolerant JSON parsing of model output
+
 # Packaging (optional)
 # nuitka>=1.8.0
 # pyinstaller>=6.0.0

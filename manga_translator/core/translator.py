@@ -404,7 +404,7 @@ class TranslatorManager(QObject):
         # LibreTranslate
         self.engines["libretranslate"] = LibreTranslateEngine()
 
-        # LLM translation (reuses BookerGptTool prompts; config from env vars)
+        # LLM translation (uses llm_client / llm_prompts; config from env vars)
         try:
             from manga_translator.core.llm_translator import LLMTranslator
             self.engines["llm"] = LLMTranslator(
@@ -485,6 +485,74 @@ class TranslatorManager(QObject):
             results.append(result)
             self.batch_progress.emit(i + 1, total)
         return results
+
+    def translate_many(self, texts: List[str], source_lang: str = None,
+                       target_lang: str = None) -> List[TranslationResult]:
+        """Translate a batch of texts, batching when the engine supports it.
+
+        If the current engine provides ``translate_many`` (e.g. the LLM engine
+        merges everything into a single JSON request), it is used; otherwise it
+        falls back to one call per text. Results are returned in the same order
+        as ``texts`` and each is stored in the translation cache.
+        """
+        if not texts:
+            return []
+
+        source_lang = source_lang or self.config.get("translation.source_language", "auto")
+        target_lang = target_lang or self.config.get("translation.target_language", "en")
+        use_cache = self.config.get("translation.use_cache", True)
+        engine = self.current_engine
+
+        if engine is None:
+            return [
+                TranslationResult(t, "[No translation engine available]",
+                                  source_lang, target_lang, "none", 0.0)
+                for t in texts
+            ]
+
+        results: List[TranslationResult] = [None] * len(texts)
+        pending: List[int] = []
+        pending_texts: List[str] = []
+
+        for i, text in enumerate(texts):
+            cached = None
+            if use_cache:
+                cached = self.cache.get(text, source_lang, target_lang, engine.name)
+            if cached is not None:
+                results[i] = cached
+            else:
+                pending.append(i)
+                pending_texts.append(text)
+
+        if pending_texts:
+            if hasattr(engine, "translate_many"):
+                try:
+                    translated = engine.translate_many(
+                        pending_texts, source_lang, target_lang)
+                except Exception as ex:
+                    self.logger.error(f"Batch translate error: {ex}")
+                    translated = [f"[翻译失败: {ex}]" for _ in pending_texts]
+            else:
+                translated = [
+                    engine.translate(t, source_lang, target_lang).translated_text
+                    for t in pending_texts
+                ]
+
+            for idx, text, trans in zip(pending, pending_texts, translated):
+                result = TranslationResult(
+                    source_text=text,
+                    translated_text=trans,
+                    source_language=source_lang,
+                    target_language=target_lang,
+                    engine=engine.name,
+                    confidence=1.0 if trans and not trans.startswith("[") else 0.0,
+                )
+                results[idx] = result
+                if use_cache and result.confidence > 0:
+                    self.cache.put(result, engine.name)
+
+        self.batch_progress.emit(len(results), len(results))
+        return [r for r in results]
 
     def get_supported_languages(self) -> Dict[str, str]:
         """Get supported languages for current engine."""

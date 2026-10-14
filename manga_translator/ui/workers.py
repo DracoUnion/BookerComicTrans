@@ -128,19 +128,16 @@ class PipelineWorker(QThread):
             self.ocr_finished.emit(regions)
             self.progress.emit(50, f"Detected {len(regions)} regions. Translating...")
 
-            # Translation stage
+            if self._cancelled:
+                return
+
+            # Translation stage — batch the whole page into as few LLM calls
+            # as possible (the LLM engine merges everything into one JSON
+            # request, see TranslatorManager.translate_many).
             texts = [r.text for r in regions]
-            results = []
-            total = len(texts)
-            for i, text in enumerate(texts):
-                if self._cancelled:
-                    return
-                result = self.translator_manager.translate(
-                    text, self.source_lang, self.target_lang
-                )
-                results.append(result)
-                pct = 50 + int(50 * (i + 1) / max(1, total))
-                self.progress.emit(pct, f"Translating {i + 1}/{total}...")
+            results = self.translator_manager.translate_many(
+                texts, self.source_lang, self.target_lang
+            )
 
             if self._cancelled:
                 return

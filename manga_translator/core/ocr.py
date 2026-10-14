@@ -342,7 +342,7 @@ class OCRManager:
         except Exception:
             pass
 
-        # LLM / VLM OCR (reuses BookerGptTool OCR_PMT; config from env vars)
+        # LLM / VLM OCR (uses llm_client / llm_prompts; config from env vars)
         try:
             from manga_translator.core.llm_ocr import LLMOCREngine
             self.engines["llm"] = LLMOCREngine(language)
