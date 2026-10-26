@@ -16,6 +16,9 @@ from manga_translator.app import MangaTranslatorApp
 
 def main():
     """Main entry point."""
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     app = MangaTranslatorApp(sys.argv)
     return app.run()
 
