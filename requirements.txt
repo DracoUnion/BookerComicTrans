@@ -1,5 +1,5 @@
 # Core GUI framework
-PyQt6>=6.5.0
+PySide6>=6.5.0
 
 # Image processing
 Pillow>=10.0.0

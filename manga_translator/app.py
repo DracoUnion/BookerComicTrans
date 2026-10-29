@@ -6,9 +6,9 @@ import sys
 from pathlib import Path
 from typing import Optional, List
 
-from PyQt6.QtWidgets import QApplication, QMessageBox, QSplashScreen
-from PyQt6.QtCore import Qt, QTimer, QSettings
-from PyQt6.QtGui import QPixmap, QIcon, QFontDatabase
+from PySide6.QtWidgets import QApplication, QMessageBox, QSplashScreen
+from PySide6.QtCore import Qt, QTimer, QSettings
+from PySide6.QtGui import QPixmap, QIcon, QFontDatabase
 
 from manga_translator.ui.main_window import MainWindow
 from manga_translator.core.config import ConfigManager

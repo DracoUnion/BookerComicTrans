@@ -6,14 +6,14 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QToolBar, QStatusBar, QMenu, QMenuBar, QFileDialog, QMessageBox,
     QLabel, QProgressBar, QPushButton, QComboBox,
     QDockWidget, QTabWidget, QApplication, QTableWidgetItem,
 )
-from PyQt6.QtCore import Qt, QSize, QTimer, QSettings, QThread
-from PyQt6.QtGui import (
+from PySide6.QtCore import Qt, QSize, QTimer, QSettings, QThread
+from PySide6.QtGui import (
     QAction, QIcon, QKeySequence, QPixmap, QImage, QActionGroup, QShortcut,
 )
 
@@ -871,7 +871,7 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self, "About Manga Translator",
             "<h3>Manga Translator 1.0.0</h3>"
-            "<p>A modern PyQt6 application for translating manga and comics.</p>"
+            "<p>A modern PySide6 application for translating manga and comics.</p>"
             "<p>Features:</p>"
             "<ul>"
             "<li>Multiple OCR engines (Tesseract, PaddleOCR, EasyOCR)</li>"

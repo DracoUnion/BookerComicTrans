@@ -1,11 +1,11 @@
-# Manga Translator (PyQt6)
+# Manga Translator (PySide6)
 
-A modern **PyQt6** rewrite of the original `pyqt5_momotranslator` — a desktop
+A modern **PySide6** rewrite of the original `pyqt5_momotranslator` — a desktop
 application for translating manga / comic images.
 
 The original program (`pyqt5_momotranslator.exe`) was a Nuitka-compiled
 Python 3.10 / PyQt5 application. This project reimplements its functionality
-with a clean, modular architecture on top of **PyQt6**.
+with a clean, modular architecture on top of **PySide6**.
 
 ## Features
 
@@ -126,7 +126,7 @@ code, the original high-level structure is not directly recoverable from the
 disassembly — function names are stripped (`sub_XXXX`) and the Python module
 strings are the standard interpreter/Nuitka runtime strings. This rewrite
 therefore reproduces the *functionality* of such a translator tool with an
-idiomatic, maintainable PyQt6 codebase rather than a line-by-line port.
+idiomatic, maintainable PySide6 codebase rather than a line-by-line port.
 
 ## License
 

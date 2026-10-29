@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from pathlib import Path
 
-from PyQt6.QtCore import QObject, pyqtSignal, QThread
+from PySide6.QtCore import QObject, Signal, QThread
 
 from manga_translator.core.config import ConfigManager
 from manga_translator.core.logger import get_logger
@@ -375,9 +375,9 @@ class TranslationCache:
 class TranslatorManager(QObject):
     """Manages translation engines and operations."""
 
-    translation_finished = pyqtSignal(TranslationResult)
-    translation_error = pyqtSignal(str)
-    batch_progress = pyqtSignal(int, int)  # current, total
+    translation_finished = Signal(TranslationResult)
+    translation_error = Signal(str)
+    batch_progress = Signal(int, int)  # current, total
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()

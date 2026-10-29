@@ -19,7 +19,7 @@ def get_resource_path(relative_path: str = "") -> Path:
 
 def get_data_path(relative_path: str = "") -> Path:
     """Get absolute path to data directory."""
-    from PyQt6.QtCore import QStandardPaths
+    from PySide6.QtCore import QStandardPaths
     data_dir = Path(QStandardPaths.writableLocation(
         QStandardPaths.StandardLocation.AppDataLocation
     )) / "MangaTranslator"
@@ -29,7 +29,7 @@ def get_data_path(relative_path: str = "") -> Path:
 
 def get_cache_path(relative_path: str = "") -> Path:
     """Get absolute path to cache directory."""
-    from PyQt6.QtCore import QStandardPaths
+    from PySide6.QtCore import QStandardPaths
     cache_dir = Path(QStandardPaths.writableLocation(
         QStandardPaths.StandardLocation.CacheLocation
     )) / "MangaTranslator"

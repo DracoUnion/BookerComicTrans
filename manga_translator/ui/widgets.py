@@ -5,14 +5,14 @@ Custom widgets for Manga Translator UI.
 from typing import List, Optional, Dict
 from pathlib import Path
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
     QLabel, QTextEdit, QPushButton, QScrollArea, QFrame,
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
     QCheckBox, QComboBox, QLineEdit, QAbstractItemView, QSizePolicy,
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QSize, QTimer
-from PyQt6.QtGui import QPixmap, QIcon, QColor, QFont, QPainter, QBrush
+from PySide6.QtCore import Qt, Signal, QSize, QTimer
+from PySide6.QtGui import QPixmap, QIcon, QColor, QFont, QPainter, QBrush
 
 from manga_translator.core.ocr import TextRegion
 from manga_translator.core.translator import TranslationResult
@@ -21,8 +21,8 @@ from manga_translator.core.translator import TranslationResult
 class PageListWidget(QWidget):
     """Widget for displaying a list of pages/thumbnails."""
 
-    page_selected = pyqtSignal(int)  # page index
-    page_removed = pyqtSignal(int)
+    page_selected = Signal(int)  # page index
+    page_removed = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -105,8 +105,8 @@ class PageListWidget(QWidget):
 class TranslationPanel(QWidget):
     """Panel showing translations for the current page."""
 
-    translation_edited = pyqtSignal(int, str)  # index, new text
-    retranslate_requested = pyqtSignal(int)  # index
+    translation_edited = Signal(int, str)  # index, new text
+    retranslate_requested = Signal(int)  # index
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -278,7 +278,7 @@ class TranslationOverlay(QWidget):
 class ImageDropArea(QLabel):
     """A drop area for images."""
 
-    files_dropped = pyqtSignal(list)  # list of paths
+    files_dropped = Signal(list)  # list of paths
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -317,8 +317,8 @@ class ImageDropArea(QLabel):
 class RegionListWidget(QWidget):
     """List of detected text regions."""
 
-    region_selected = pyqtSignal(int)
-    region_deleted = pyqtSignal(int)
+    region_selected = Signal(int)
+    region_deleted = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)

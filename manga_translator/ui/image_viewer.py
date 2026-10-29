@@ -5,15 +5,15 @@ Image viewer widget with zoom, pan, and translation overlay support.
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem,
     QGraphicsRectItem, QGraphicsTextItem, QGraphicsItem,
     QWidget, QMenu, QRubberBand, QApplication,
 )
-from PyQt6.QtCore import (
-    Qt, QRectF, QPointF, QRect, QSize, pyqtSignal, QPoint, QTimer,
+from PySide6.QtCore import (
+    Qt, QRectF, QPointF, QRect, QSize, Signal, QPoint, QTimer,
 )
-from PyQt6.QtGui import (
+from PySide6.QtGui import (
     QPixmap, QImage, QPainter, QPen, QBrush, QColor, QFont,
     QWheelEvent, QMouseEvent, QKeyEvent, QTransform, QFontMetrics,
 )
@@ -100,9 +100,9 @@ class ManualSelectionItem(QGraphicsRectItem):
 class ImageViewer(QGraphicsView):
     """Image viewer with zoom, pan, and text overlay support."""
 
-    region_selected = pyqtSignal(QRect)  # bbox in image coordinates
-    region_clicked = pyqtSignal(object)  # TextOverlayItem
-    zoom_changed = pyqtSignal(float)
+    region_selected = Signal(QRect)  # bbox in image coordinates
+    region_clicked = Signal(object)  # TextOverlayItem
+    zoom_changed = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)

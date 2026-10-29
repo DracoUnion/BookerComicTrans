@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from PyQt6.QtCore import QSettings, QStandardPaths
+from PySide6.QtCore import QSettings, QStandardPaths
 
 
 class ConfigManager:

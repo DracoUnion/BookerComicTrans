@@ -5,8 +5,8 @@ Background worker threads for Manga Translator.
 from typing import List, Optional
 from pathlib import Path
 
-from PyQt6.QtCore import QThread, pyqtSignal, QObject
-from PyQt6.QtGui import QImage
+from PySide6.QtCore import QThread, Signal, QObject
+from PySide6.QtGui import QImage
 
 from PIL import Image
 
@@ -23,9 +23,9 @@ class OCRWorker(QThread):
     shadowing it breaks Qt's internal thread teardown.
     """
 
-    regions_ready = pyqtSignal(list)  # List[TextRegion]
-    error = pyqtSignal(str)
-    progress = pyqtSignal(int)
+    regions_ready = Signal(list)  # List[TextRegion]
+    error = Signal(str)
+    progress = Signal(int)
 
     def __init__(self, ocr_manager: OCRManager, image: Image.Image, preprocess: bool = True):
         super().__init__()
@@ -53,9 +53,9 @@ class OCRWorker(QThread):
 class TranslationWorker(QThread):
     """Worker thread for translation processing."""
 
-    translations_ready = pyqtSignal(list)  # List[TranslationResult]
-    error = pyqtSignal(str)
-    progress = pyqtSignal(int, int)  # current, total
+    translations_ready = Signal(list)  # List[TranslationResult]
+    error = Signal(str)
+    progress = Signal(int, int)  # current, total
 
     def __init__(self, translator_manager: TranslatorManager, texts: List[str],
                  source_lang: str = None, target_lang: str = None):
@@ -92,11 +92,11 @@ class TranslationWorker(QThread):
 class PipelineWorker(QThread):
     """Worker that runs the full OCR + translation pipeline."""
 
-    ocr_finished = pyqtSignal(list)  # List[TextRegion]
-    translation_finished = pyqtSignal(list)  # List[TranslationResult]
-    progress = pyqtSignal(int, str)  # percent, message
-    error = pyqtSignal(str)
-    finished_all = pyqtSignal()
+    ocr_finished = Signal(list)  # List[TextRegion]
+    translation_finished = Signal(list)  # List[TranslationResult]
+    progress = Signal(int, str)  # percent, message
+    error = Signal(str)
+    finished_all = Signal()
 
     def __init__(self, ocr_manager: OCRManager, translator_manager: TranslatorManager,
                  image: Image.Image, source_lang: str = None, target_lang: str = None,
@@ -161,9 +161,9 @@ class ImageLoadWorker(QThread):
     shadow ``QThread.finished``.
     """
 
-    loaded = pyqtSignal(object)  # PIL.Image.Image
-    error = pyqtSignal(str)
-    thumbnail_ready = pyqtSignal(object)  # QImage
+    loaded = Signal(object)  # PIL.Image.Image
+    error = Signal(str)
+    thumbnail_ready = Signal(object)  # QImage
 
     def __init__(self, path: Path, make_thumbnail: bool = True):
         super().__init__()

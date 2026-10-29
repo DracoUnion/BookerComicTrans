@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import QStandardPaths
+from PySide6.QtCore import QStandardPaths
 
 
 def setup_logger(name: str = "MangaTranslator", level: int = logging.INFO) -> logging.Logger:

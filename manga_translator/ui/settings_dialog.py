@@ -4,13 +4,13 @@ Settings dialog for Manga Translator.
 
 from typing import Dict, List
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QTabWidget, QWidget,
     QFormLayout, QComboBox, QLineEdit, QSpinBox, QCheckBox,
     QPushButton, QLabel, QDialogButtonBox, QGroupBox, QFileDialog,
     QDoubleSpinBox, QMessageBox, QListWidget, QListWidgetItem,
 )
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from manga_translator.core.config import ConfigManager
 from manga_translator.core.translator import TranslatorManager
