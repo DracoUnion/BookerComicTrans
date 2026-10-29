@@ -11,17 +11,15 @@ from PySide6.QtCore import Qt, QTimer, QSettings
 from PySide6.QtGui import QPixmap, QIcon, QFontDatabase
 
 from manga_translator.ui.main_window import MainWindow
-from manga_translator.core.config import ConfigManager
+from manga_translator.bootstrap import build_context
 from manga_translator.core.logger import setup_logger
-from manga_translator.core.translator import TranslatorManager
-from manga_translator.core.ocr import OCRManager
 from manga_translator.utils.resources import get_resource_path
 
 
 class MangaTranslatorApp:
     """Main application class for Manga Translator."""
 
-    def __init__(self, argv: list):
+    def __init__(self, argv: list, config_file=None):
         self.argv = argv
         self.app: Optional[QApplication] = None
         self.main_window: Optional[MainWindow] = None
@@ -30,6 +28,7 @@ class MangaTranslatorApp:
         self.ocr_manager: Optional[OCRManager] = None
         self.logger = None
         self.splash: Optional[QSplashScreen] = None
+        self.ctx = build_context(config_file=config_file)
 
     def run(self) -> int:
         """Run the application."""
@@ -89,16 +88,16 @@ class MangaTranslatorApp:
         self.logger = setup_logger("MangaTranslator")
         self.logger.info("Initializing Manga Translator v1.0.0")
 
-        # Initialize config manager
-        self.config_manager = ConfigManager()
+        # Config manager comes from the bootstrap context (source of truth)
+        self.config_manager = self.ctx.config
         self.logger.info("Configuration loaded")
 
         # Initialize OCR manager
-        self.ocr_manager = OCRManager(self.config_manager)
+        self.ocr_manager = self.ctx.extra("ocr_manager")
         self.logger.info("OCR engine initialized")
 
         # Initialize translator manager
-        self.translator_manager = TranslatorManager(self.config_manager)
+        self.translator_manager = self.ctx.extra("translator_manager")
         self.logger.info("Translation engines initialized")
 
     def _create_main_window(self):
